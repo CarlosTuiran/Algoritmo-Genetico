@@ -26,13 +26,13 @@ listamodelos    =[]
 minPob          =1 #Rango Minimo de Poblacion
 maxPob          =100 #Rango Maximo de Poblacion
 #datos_modelo   =StringVar()
-largo           = 10 #La longitud del material genetico de cada individuo
-num             = 12 #La cantidad de individuos que habra en la poblacion
+#largo           = random.randint(1, 20) #La longitud del material genetico de cada individuo
+num             = 20 #La cantidad de individuos que habra en la poblacion
 pressure        = int(round(num*0.3)) #Cuantos individuos se seleccionan para reproduccion. Necesariamente mayor que 2
 mutation_chance = 0.2 #La probabilidad de que un individuo mute
-generations     =200  #Numero de Generaciones
+generations     =10  #Numero de Generaciones
 funcion         =" "
-
+fitnessPopulation=[]
 #Funciones Disponibles
 def funLineal(num):
 	return num
@@ -77,14 +77,19 @@ def evaluarFuncion(num):
 """Crea un individuo  
  Recibe como parámetros dos números enteros (un mínimo y un máximo) y se llena una lista de longitud dada por la variable ‘largo‘ con números aleatorios entre el mínimo y el máximo. Esta lista creada será el nuevo individuo.
 """
+def getLargoAleatotio():
+	largo=random.randint(1, 20)
+	return largo
+
 def individual(min, max):
-	while True:
-		individuo=[random.randint(min, max) for i in range(largo)]
+	"""while True:
+		
 		num=convertirVectoraBinario(individuo)
 		if num>=minPob and num<=maxPob:
 			break
 	print(str(num))
-	definirModelo(individuo)
+	definirModelo(individuo)"""
+	individuo=[random.randint(min, max) for i in range(getLargoAleatotio())]
 	return individuo
 
 """Crear una población 
@@ -93,9 +98,9 @@ Llama la función para crear individuales un número de veces igual a ‘num‘,
 
 def crearPoblacion():
 	"""
-		Crea una poblacion nueva de individuos
+		Crea una poblacion nueva de individuos en el rango definido
 	"""
-	return [individual(0,1) for i in range(num)]
+	return [individual(0,7) for i in range(num)]
 
 """Función de Fitness.
  Dado un individuo, la función comprueba cuántos números tiene en común con el modelo y le asigna el fitness correspondiente. Después devuelve este número fuera de la función.
@@ -105,15 +110,30 @@ def calcularFitness(individual):
 	"""
 		Calcula el fitness de un individuo concreto y sacar los que se salen del rango.
 	"""
-	fitness = 0
-	numInd= convertirVectoraBinario(individual)
+	fitness = len(individual)
+	"""numInd= convertirVectoraBinario(individual)
 	if numInd<=maxPob and numInd>=minPob :
 		for i in range(len(individual)):
 		 if individual[i] == modelo[i]:
-			 fitness += 1
+			 fitness += 1"""
+	
 	return fitness
 
 """La Funcion selection_and_reproduction() para evaluar cada uno de los individuos (evaluación), seleccionar los mejores (selección) y mezclar su material genético (crossover) a fin de crear una nueva población encima de la anterior."""
+def selectionEspecific(population):
+	"""Se genera un numero aleatorio  """
+	global fitnessPopulation
+	r=random.uniform(0, 1)
+	S=0
+	for i in range(fitnessPopulation):
+		S=S+fitnessPopulation[i]
+	C=r*S
+	Ca=0
+	for i in range(fitnessPopulation):
+		Ca=Ca+fitnessPopulation[i]
+		if Ca>C:
+			newPopulation=population[i]
+	return newPopulation
 
 def selection_and_reproduction(population):
 	"""
@@ -126,9 +146,12 @@ def selection_and_reproduction(population):
 		Por ultimo muta a los individuos.
 
 	"""
+	global fitnessPopulation
+
 	puntuados = [ (calcularFitness(i), i) for i in population] #Calcula el fitness de cada individuo, y lo guarda en pares ordenados de la forma (5 , [1,2,1,1,4,1,8,9,4,1])
-	puntuados = [i[1] for i in sorted(puntuados)] #Ordena los pares ordenados de menor a mayor y se queda solo con el array de valores
-	population = puntuados
+	puntuados2 = [i[1] for i in sorted(puntuados)] #Ordena los pares ordenados de menor a mayor y se queda solo con el array de valores
+	fitnessPopulation=[i[0] for i in sorted(puntuados)] #se queda con la calificacion ordenada
+	population = selectionEspecific(puntuados)#nueva poblacion seleccionada 
 
 
 
@@ -302,7 +325,7 @@ class Aplicacion():
 		error_dato=False
 		global minPob
 		global maxPob
-		global largo
+		#global largo
 		global num
 		global mutation_chance
 		global generations
@@ -311,7 +334,7 @@ class Aplicacion():
 		try:
 			minPob=int(self.minPob.get())
 			maxPob=int(self.maxPob.get())
-			largo=int(self.largo.get())
+			#largo=int(self.largo.get())
 			num=int(self.num.get())
 			mutation_chance=float(self.mutation_chance.get())
 			generations=int(self.generations.get())
