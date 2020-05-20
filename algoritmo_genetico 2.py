@@ -237,8 +237,8 @@ class Aplicacion():
 	      	reDefinirNuevoModelo(population)
 	      texto_info+="\nModelo:\n"+ str(modelo)+"\n"
 	      texto_info+="\nPoblacion Final:\n"+ str(population)+"\n"
-      else:
-   	   texto_info="¡ERROR! REVISA DATOS"
+	    else:
+			texto_info="¡ERROR! REVISA DATOS"
       self.tinfo.insert("1.0", texto_info)
 
 """Población inicial y el bucle del programa. El algoritmo hará evolucionar a la población durante cien x generaciones, llamando las funciones que se han definido arriba
