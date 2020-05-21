@@ -149,13 +149,11 @@ def selection_and_reproduction(population):
 	global fitnessPopulation
 
 	puntuados = [ (calcularFitness(i), i) for i in population] #Calcula el fitness de cada individuo, y lo guarda en pares ordenados de la forma (5 , [1,2,1,1,4,1,8,9,4,1])
-	puntuados2 = [i[1] for i in sorted(puntuados)] #Ordena los pares ordenados de menor a mayor y se queda solo con el array de valores
+	#puntuados2 = [i[1] for i in sorted(puntuados)] #Ordena los pares ordenados de menor a mayor y se queda solo con el array de valores
 	fitnessPopulation=[i[0] for i in sorted(puntuados)] #se queda con la calificacion ordenada
 	population = selectionEspecific(puntuados)#nueva poblacion seleccionada 
 
-
-
-	selected =  puntuados[(len(puntuados)-pressure):] #Esta linea selecciona los 'n' individuos del final, donde n viene dado por 'pressure'
+	"""selected =  puntuados[(len(puntuados)-pressure):] #Esta linea selecciona los 'n' individuos del final, donde n viene dado por 'pressure'
 
 
 
@@ -165,7 +163,18 @@ def selection_and_reproduction(population):
 		padre = random.sample(selected, 2) #Se eligen dos padres
 
 		population[i][:punto] = padre[0][:punto] #Se mezcla el material genetico de los padres en cada nuevo individuo
-		population[i][punto:] = padre[1][punto:]
+		population[i][punto:] = padre[1][punto:]"""
+		#Reproduccion
+	p1 = population[0] #Padre 1
+	p2 = population[0] #Padre 2
+	n1=random.randint(1,len(p1)/2 )
+	n2=random.randint(len(p2/2),len(p2) )
+	pasosp1=p1[n1]
+	pasosp2=p2[n2] #pendiente a este punto que el documento decia algo raro
+	
+
+
+
 
 	return population #El array 'population' tiene ahora una nueva poblacion de individuos, que se devuelven
 
