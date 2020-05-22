@@ -31,6 +31,8 @@ num             = 20 #La cantidad de individuos que habra en la poblacion
 pressure        = int(round(num*0.3)) #Cuantos individuos se seleccionan para reproduccion. Necesariamente mayor que 2
 mutation_chance = 0.2 #La probabilidad de que un individuo mute
 generations     =10  #Numero de Generaciones
+NumIndxGen      =20
+NumEntre        =10
 funcion         =" "
 fitnessPopulation=[]
 #Funciones Disponibles
@@ -100,7 +102,7 @@ def crearPoblacion():
 	"""
 		Crea una poblacion nueva de individuos en el rango definido
 	"""
-	return [individual(0,7) for i in range(num)]
+	return [individual(0,7) for i in range(NumIndxGen)]
 
 """Función de Fitness.
  Dado un individuo, la función comprueba cuántos números tiene en común con el modelo y le asigna el fitness correspondiente. Después devuelve este número fuera de la función.
@@ -110,6 +112,7 @@ def calcularFitness(individual):
 	"""
 		Calcula el fitness de un individuo concreto y sacar los que se salen del rango.
 	"""
+	print("INDIVIDUAL:"+str(individual))
 	fitness = len(individual)
 	"""numInd= convertirVectoraBinario(individual)
 	if numInd<=maxPob and numInd>=minPob :
@@ -123,13 +126,15 @@ def calcularFitness(individual):
 def selectionEspecific(population):
 	"""Se genera un numero aleatorio  """
 	global fitnessPopulation
+	fitnessPopulation=0
+	newPopulation=[]
 	r=random.uniform(0, 1)
 	S=0
-	for i in range(fitnessPopulation):
+	for i in range(len(fitnessPopulation)):
 		S=S+fitnessPopulation[i]
 	C=r*S
 	Ca=0
-	for i in range(fitnessPopulation):
+	for i in range(len(fitnessPopulation)):
 		Ca=Ca+fitnessPopulation[i]
 		if Ca>C:
 			newPopulation=population[i]
@@ -151,8 +156,10 @@ def selection_and_reproduction(population):
 	puntuados = [ (calcularFitness(i), i) for i in population] #Calcula el fitness de cada individuo, y lo guarda en pares ordenados de la forma (5 , [1,2,1,1,4,1,8,9,4,1])
 	#puntuados2 = [i[1] for i in sorted(puntuados)] #Ordena los pares ordenados de menor a mayor y se queda solo con el array de valores
 	fitnessPopulation=[i[0] for i in sorted(puntuados)] #se queda con la calificacion ordenada
-	population = selectionEspecific(puntuados)#nueva poblacion seleccionada 
-
+	population = selectionEspecific(sorted(puntuados))#nueva poblacion seleccionada 
+	print("Puntuados: \n"+str(sorted( puntuados)))
+	print("fitnessPopulation: \n"+str(fitnessPopulation))
+	print("Population N: n"+str(population))
 	"""selected =  puntuados[(len(puntuados)-pressure):] #Esta linea selecciona los 'n' individuos del final, donde n viene dado por 'pressure'
 
 
@@ -165,12 +172,19 @@ def selection_and_reproduction(population):
 		population[i][:punto] = padre[0][:punto] #Se mezcla el material genetico de los padres en cada nuevo individuo
 		population[i][punto:] = padre[1][punto:]"""
 		#Reproduccion
+	
 	p1 = population[0] #Padre 1
 	p2 = population[0] #Padre 2
 	n1=random.randint(1,len(p1)/2 )
 	n2=random.randint(len(p2/2),len(p2) )
 	pasosp1=p1[n1]
 	pasosp2=p2[n2] #pendiente a este punto que el documento decia algo raro
+	camino_intermedio=[random.randint(0,7) for i in range(pasosp1-pasosp2)]
+	for i in range(n1):
+		ni1[i]=p1[i]
+		punto_final=i+1
+	for i in camino_intermedio:
+		ni1[punto_final+i]=camino_intermedio[i]
 	
 
 
@@ -237,39 +251,47 @@ def graficar(x,y):
 class Aplicacion():
 	def __init__(self):
 		self.raiz = Tk() # Define la ventana principal de la aplicación
-		self.raiz.geometry('1400x800')
+		self.raiz.geometry('1200x600')
 		self.raiz.resizable(0,0) # Establece que no se pueda cambiar el tamaño de la ventana
 		self.raiz.configure(bg = 'beige') # Asigna un color de fondo a la ventana.
 		self.raiz.title('Algoritmo Genetico') # Asigna un título a la ventana
 		self.raiz.iconbitmap(default='genetica-icono-de-adn.ico')
 		fuente= font.Font(weight='bold')
 		#ETIQUETAS
-		self.etiqMinPob = ttk.Label(self.raiz, text="Rango Min de Poblacion:", font=fuente)
-		self.etiqMaxPob = ttk.Label(self.raiz, text="Rango Max de Poblacion:", font=fuente)
-		self.etiqLong = ttk.Label(self.raiz, text="Longitud del Material", font=fuente)
-		self.etiqCant = ttk.Label(self.raiz, text="Muestra de individuos:", font=fuente)
-		self.etiqMuta = ttk.Label(self.raiz, text="(%) de Mutacion:", font=fuente)
+		#self.etiqMinPob = ttk.Label(self.raiz, text="Rango Min de Poblacion:", font=fuente)
+		#self.etiqMaxPob = ttk.Label(self.raiz, text="Rango Max de Poblacion:", font=fuente)
+		#self.etiqLong = ttk.Label(self.raiz, text="Longitud del Material", font=fuente)
+		#self.etiqCant = ttk.Label(self.raiz, text="Muestra de individuos:", font=fuente)
+		#self.etiqMuta = ttk.Label(self.raiz, text="(%) de Mutacion:", font=fuente)
 		self.etiqGen = ttk.Label(self.raiz, text="Generaciones:", font=fuente)
+		self.etiqNumIndxGen = ttk.Label(self.raiz, text="Num de Individuos x Generaciones:", font=fuente)
+		self.etiqNumEntre = ttk.Label(self.raiz, text="Num de Entreamientos:", font=fuente)
 		self.etiqModel = ttk.Label(self.raiz, text="Modelo Final:", font=fuente)
 
 		#Variables de Entorno
-		self.minPob=IntVar(value=1)
-		self.maxPob=IntVar(value=100)
-		self.largo=IntVar(value=10)
-		self.num=IntVar(value=10)
-		self.mutation_chance=DoubleVar(value=0.3)
-		self.generations=IntVar(value=100)
+		#self.minPob=IntVar(value=1)
+		#self.maxPob=IntVar(value=100)
+		#self.largo=IntVar(value=10)
+		#self.num=IntVar(value=10)
+		#self.mutation_chance=DoubleVar(value=0.3)
+		self.generations=IntVar(value=10)
+		self.NumIndxGen=IntVar(value=20)
+		self.NumEntre=IntVar(value=10)
+
 
 		#CAJAS DE TEXTO
-		self.ctextMinPob = ttk.Entry(self.raiz, textvariable=self.minPob, width=30)
-		self.ctextMaxPob = ttk.Entry(self.raiz, textvariable=self.maxPob, width=30)
-		self.ctextLong = ttk.Entry(self.raiz, textvariable=self.largo, width=30)
-		self.ctextCant = ttk.Entry(self.raiz, textvariable=self.num, width=30)
-		self.ctextMuta = ttk.Entry(self.raiz, textvariable=self.mutation_chance, width=30)
+		#self.ctextMinPob = ttk.Entry(self.raiz, textvariable=self.minPob, width=30)
+		#self.ctextMaxPob = ttk.Entry(self.raiz, textvariable=self.maxPob, width=30)
+		#self.ctextLong = ttk.Entry(self.raiz, textvariable=self.largo, width=30)
+		#self.ctextCant = ttk.Entry(self.raiz, textvariable=self.num, width=30)
+		#self.ctextMuta = ttk.Entry(self.raiz, textvariable=self.mutation_chance, width=30)
 		self.ctextGen = ttk.Entry(self.raiz, textvariable=self.generations, width=30)
+		self.ctextNumIndxGen = ttk.Entry(self.raiz, textvariable=self.NumIndxGen, width=30)
+		self.ctextNumEntre = ttk.Entry(self.raiz, textvariable=self.NumEntre, width=30)
+
 		self.separ1 = ttk.Separator(self.raiz, orient=HORIZONTAL)
-		self.combo=ttk.Combobox(self.raiz, state="readonly")
-		self.combo["values"]= ["Lineal(x)","Cuadratica(x^2)"]
+		#self.combo=ttk.Combobox(self.raiz, state="readonly")
+		#self.combo["values"]= ["Lineal(x)","Cuadratica(x^2)"]
 		self.tinfo = Text(self.raiz, width=80, height=30) # Define el widget Text 'self.tinfo ' en el que se pueden introducir varias líneas de texto:
 		self.separ2 = ttk.Separator(self.raiz, orient=HORIZONTAL)
 		self.modeloFinal=Text(self.raiz,  width=15, height=4 )
@@ -304,35 +326,62 @@ class Aplicacion():
 		
 
 		#AJUSTANDO WIDGETS
-		self.etiqMinPob.place(x=40, y=80)
-		self.ctextMinPob.place(x=40, y=100)
-		self.etiqMaxPob.place(x=250, y=80)
-		self.ctextMaxPob.place(x=250, y=100)
-		self.etiqLong.place(x=460, y=80)
-		self.ctextLong.place(x=460, y=100)
-		self.etiqCant.place(x=680, y=80)
-		self.ctextCant.place(x=680, y=100)
-		self.etiqMuta.place(x=900, y=80)
-		self.ctextMuta.place(x=900, y=100)
-		self.etiqGen.place(x=1100, y=80)
-		self.ctextGen.place(x=1100, y=100)
-		self.combo.place(x=40, y=120)
+		self.etiqNumIndxGen.place(x=40, y=80)
+		self.ctextNumIndxGen.place(x=40, y=100)
+		self.etiqNumEntre.place(x=250, y=80)
+		self.ctextNumEntre.place(x=250, y=100)
+		#self.etiqLong.place(x=460, y=80)
+		#self.ctextLong.place(x=460, y=100)
+		#self.etiqCant.place(x=680, y=80)
+		#self.ctextCant.place(x=680, y=100)
+		#self.etiqMuta.place(x=900, y=80)
+		#self.ctextMuta.place(x=900, y=100)
+		self.etiqGen.place(x=460, y=80)
+		self.ctextGen.place(x=460, y=100)
+		#self.combo.place(x=40, y=120)
 		self.separ1.place(x=5, y=140, bordermode=OUTSIDE, height=10, width=1320)
 		self.tinfo.place(x=40, y=150) # Sitúa la caja de texto 'self.tinfo' en la parte INFERIOR
 		self.etiqModel.place(x=700, y=150)
 		self.modeloFinal.place(x=700, y=200)
 		#dataPlot.get_tk_widget().place(x=500, y=150)
 		self.separ2.place(x=5, y=650, bordermode=OUTSIDE, height=10, width=1320)
-		self.binfo.place(x=40, y=700) #Coloca el botón 'self.binfo' debajo y a la izquierda del widget anterior
-		self.bsalir.place(x=1300, y=700) #Coloca el botón 'self.bsalir' a la derecha del  objeto anterior.
+		self.binfo.place(x=900, y=150) #Coloca el botón 'self.binfo' debajo y a la izquierda del widget anterior
+		self.bsalir.place(x=900, y=200) #Coloca el botón 'self.bsalir' a la derecha del  objeto anterior.
 
 		self.binfo.focus_set() #El foco de la aplicación se sitúa en el botón  'binfo' resaltando su borde.
 		self.raiz.mainloop()
 
 	def verinfo(self):
 
+		"""Comprovar Funciones""" 
+		
+		population=crearPoblacion()
+		print("Poblacion Inicial: \n"+str(population)) 
+		population = selection_and_reproduction(population)
+		print("Poblacion Select: \n"+ str(population))
+		global NumIndxGen
+		global generations
+		global NumEntre
 		error_dato=False
-		global minPob
+		try:
+			generations=int(self.generations.get())
+			NumIndxGen=int(self.NumIndxGen.get())
+			NumEntre=int(self.NumEntre.get())
+		except:
+			error_dato=True
+		self.tinfo.delete("1.0", END) # Borra el contenido que tenga en un momento dado la caja de texto
+		self.modeloFinal.delete("1.0", END)
+		if not error_dato:
+			population = crearPoblacion()#Inicializar una poblacion
+			texto_info= "\n Poblacion Inicial:\n"+ str(population)+"\n"
+			#SE EVOLUCIONA LA POBLACION
+			for i in range(generations):
+				population = selection_and_reproduction(population)
+			texto_info+= "\nPoblacion Final:\n"+ str(population)+"\n"
+		else:
+			texto_info="¡ERROR! REVISA DATOS"
+		self.tinfo.insert("1.0", texto_info)
+		"""global minPob
 		global maxPob
 		#global largo
 		global num
@@ -340,6 +389,7 @@ class Aplicacion():
 		global generations
 		global pressure
 		global funcion
+		
 		try:
 			minPob=int(self.minPob.get())
 			maxPob=int(self.maxPob.get())
@@ -374,7 +424,7 @@ class Aplicacion():
 		else:
 			texto_info="¡ERROR! REVISA DATOS"
 		self.tinfo.insert("1.0", texto_info)
-		self.modeloFinal.insert("1.0", texto_modelo)
+		self.modeloFinal.insert("1.0", texto_modelo)"""
 
 		
 def main():
